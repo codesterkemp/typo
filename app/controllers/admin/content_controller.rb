@@ -28,6 +28,19 @@ class Admin::ContentController < Admin::BaseController
   end
 
   def merge
+    unless current_user == 'Admin' || current_user == 'admin'
+      redirect_to :action => 'index'
+      flash[:error] = _("Error, you are not allowed to merge articles")
+      return
+    end
+    id1 = params[:id1]
+    id2 = params[:id2]
+    @merged_article = Article.find(params[:id1])
+    @deleted_article = Article.find(params[:id2])
+    @merged_article.comments = @merged_article.comments + @deleted_article.comments
+    @merged_article.body = @merged_article.body + @deleted_article.body
+    @merged_article.save
+    @deleted_article.destroy
   end
 
   def edit
@@ -37,7 +50,7 @@ class Admin::ContentController < Admin::BaseController
       flash[:error] = _("Error, you are not allowed to perform this action")
       return
     end
-    new_or_edit
+    new_or_edit('edit')
   end
 
   def destroy
@@ -142,7 +155,7 @@ class Admin::ContentController < Admin::BaseController
 
   def real_action_for(action); { 'add' => :<<, 'remove' => :delete}[action]; end
 
-  def new_or_edit
+  def new_or_edit(mode = 'new')
     id = params[:id]
     id = params[:article][:id] if params[:article] && params[:article][:id]
     @article = Article.get_or_build_article(id)
