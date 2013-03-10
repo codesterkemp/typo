@@ -56,4 +56,6 @@ group :development, :test do
   gem 'cucumber-rails-training-wheels'
   gem 'database_cleaner'
   gem 'capybara'
+  gem 'better_errors'
+  gem 'binding_of_caller'
 end

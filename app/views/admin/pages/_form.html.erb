@@ -5,6 +5,7 @@
 <div class='editor-right'>
 	<div class='well'>
 	  <h4><%= _("Publish settings")%></h4>
+    <h4><%= _("Publish no settings")%></h4>
     <ul class='inputs-list'>
       <li>
         <label for="page_published">
@@ -49,6 +50,7 @@
       <%= render_macros(@macros) if current_user.editor == 'simple' %>
     </div>
   </div>
+  
   
   <div class='separator'>
     <h4><%= _("Page settings") %></h4>
