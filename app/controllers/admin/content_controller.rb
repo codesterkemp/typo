@@ -28,11 +28,6 @@ class Admin::ContentController < Admin::BaseController
   end
 
   def merge
-    unless current_user == 'Admin' || current_user == 'admin'
-      redirect_to :action => 'index'
-      flash[:error] = _("Error, you are not allowed to merge articles")
-      return
-    end
     id1 = params[:id1]
     id2 = params[:id2]
     @merged_article = Article.find(params[:id1])
@@ -41,6 +36,9 @@ class Admin::ContentController < Admin::BaseController
     @merged_article.body = @merged_article.body + @deleted_article.body
     @merged_article.save
     @deleted_article.destroy
+
+    flash[:notice] = _("The articles were successfully merged.")
+    redirect_to :action => 'index'
   end
 
   def edit
@@ -163,6 +161,7 @@ class Admin::ContentController < Admin::BaseController
 
     @post_types = PostType.find(:all)
     if request.post?
+      flash[:notice] = _("Great Scott.")
       if params[:article][:draft]
         get_fresh_or_existing_draft_for_article
       else
@@ -181,7 +180,6 @@ class Admin::ContentController < Admin::BaseController
     if request.post?
       set_article_author
       save_attachments
-      
       @article.state = "draft" if @article.draft
 
       if @article.save
@@ -196,7 +194,7 @@ class Admin::ContentController < Admin::BaseController
     @images = Resource.images_by_created_at.page(params[:page]).per(10)
     @resources = Resource.without_images_by_filename
     @macros = TextFilter.macro_filters
-    render 'new'
+    render 'edit'
   end
 
   def set_the_flash
