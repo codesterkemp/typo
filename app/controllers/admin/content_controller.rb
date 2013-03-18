@@ -28,23 +28,22 @@ class Admin::ContentController < Admin::BaseController
   end
 
   def merge
-    # merge = params[:merge]
-    continue = 'true'
+    merge = params[:merge]
+    continue = true
     id1 = params[:id]
     id2 = params[:merge_with_id]
     if id2.nil?
-      continue = "No valid merge ID"
+      continue = false
     elsif id2 == id1
-      continue = "Both of the Article IDs are the same."
+      continue = false
     elsif !Article.find_by_id(id2)
-      continue = "Invalid merge ID"
+      continue = false
     end
-    if continue == 'true'
-    @Article = Article.find(id1)
-    @Article.merge_with(id2)
-    flash[:noticed] = _("Articles successfully merged")
-    else
-      flash[:error] = _("Merge Error: #{continue}")
+    if continue
+      @Article = Article.find(id1)
+      @Article.merge_with(id2)
+      
+      flash[:error] = _("these are the merge #{continue} params #{params} ")
     end
 
     # flash[:notice] = _("The articles were successfully merged.")
@@ -52,13 +51,11 @@ class Admin::ContentController < Admin::BaseController
   end
 
   def edit
-    unless params[:id] == nil
-      @article = Article.find(params[:id])
-      unless @article.access_by? current_user
-        redirect_to :action => 'index'
-        flash[:error] = _("Error, you are not allowed to perform this action")
-        return
-      end
+    @article = Article.find(params[:id])
+    unless @article.access_by? current_user
+      redirect_to :action => 'index'
+      flash[:error] = _("Error, you are not allowed to perform this action")
+      return
     end
     new_or_edit('edit')
   end
@@ -189,13 +186,20 @@ class Admin::ContentController < Admin::BaseController
     @article.published_at = DateTime.strptime(params[:article][:published_at], "%B %e, %Y %I:%M %p GMT%z").utc rescue Time.parse(params[:article][:published_at]).utc rescue nil
 
     if request.post?
-      if params[:merge_with_id] != ""
-        merge
-      else
-        set_article_author
-        save_attachments
-        @article.state = "draft" if @article.draft
+      merge
+      if params != nil
+        # shuf = params[:category]
+        # shuf[:name]
+        # params[:name] = 'broken'
+        # @category.name = shuf[:name]
+        # @category.keywords = shuf[:keywords]
+        # @category.permalink = shuf[:permalink]
+        # @category.description = shuf[:description]
+        # flash[:error] = _("these are the #{params}")
       end
+      set_article_author
+      save_attachments
+      @article.state = "draft" if @article.draft
 
       if @article.save
         destroy_the_draft unless @article.draft
@@ -209,7 +213,7 @@ class Admin::ContentController < Admin::BaseController
     @images = Resource.images_by_created_at.page(params[:page]).per(10)
     @resources = Resource.without_images_by_filename
     @macros = TextFilter.macro_filters
-    render 'edit'
+    render 'new'
   end
 
   def set_the_flash
