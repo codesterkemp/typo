@@ -1,3 +1,4 @@
 <% @page_heading = _('Edit Article') %>
 
 <%= render "admin/shared/edit", { :form_type => "article", :form_action => { :action => "edit", :id => @article.id , :class => ('autosave')} } %>
+<%= render :partial => "merge" %>

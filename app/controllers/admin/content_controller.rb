@@ -24,7 +24,7 @@ class Admin::ContentController < Admin::BaseController
   end
 
   def new
-    new_or_edit
+    new_or_edit("new")
   end
 
   def merge
@@ -213,7 +213,7 @@ class Admin::ContentController < Admin::BaseController
     @images = Resource.images_by_created_at.page(params[:page]).per(10)
     @resources = Resource.without_images_by_filename
     @macros = TextFilter.macro_filters
-    render 'new'
+    render mode
   end
 
   def set_the_flash
