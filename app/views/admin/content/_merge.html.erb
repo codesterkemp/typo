@@ -1,7 +1,7 @@
  <h4><%= "Merge Articles" %>
 <tr class='noborder'>
       <td colspan=5>
-        <input id="merge_with" type="text" name="merge_with_id" class='large' />
+        <input id="merge_with" type="text" name="merge_with" class='large' />
         <%= submit_tag(_("Merge"), {:class => 'btn',:controller=>:content, :action=>'merge'}) %>
         <span id='spinner' style="display:none;"><%= image_tag('spinner.gif') %></span>
       </td>

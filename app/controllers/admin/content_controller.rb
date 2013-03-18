@@ -31,7 +31,7 @@ class Admin::ContentController < Admin::BaseController
     merge = params[:merge]
     continue = true
     id1 = params[:id]
-    id2 = params[:merge_with_id]
+    id2 = params[:merge_with]
     if id2.nil?
       continue = false
     elsif id2 == id1
