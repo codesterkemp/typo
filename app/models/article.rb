@@ -396,6 +396,15 @@ class Article < Content
     self.extended = parts[1] || ''
   end
 
+  def merge_with(other_article_ID)
+    self
+    @deleted_article = Article.find(other_article_ID)
+    self.comments = self.comments + @deleted_article.comments
+    self.body = self.body + @deleted_article.body
+    @deleted_article.destroy
+    self.save
+  end
+
   def link_to_author?
     !user.email.blank? && blog.link_to_author
   end

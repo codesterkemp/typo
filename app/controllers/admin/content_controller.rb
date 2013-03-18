@@ -28,25 +28,37 @@ class Admin::ContentController < Admin::BaseController
   end
 
   def merge
-    id1 = params[:id1]
-    id2 = params[:id2]
-    @merged_article = Article.find(params[:id1])
-    @deleted_article = Article.find(params[:id2])
-    @merged_article.comments = @merged_article.comments + @deleted_article.comments
-    @merged_article.body = @merged_article.body + @deleted_article.body
-    @merged_article.save
-    @deleted_article.destroy
+    # merge = params[:merge]
+    continue = 'true'
+    id1 = params[:id]
+    id2 = params[:merge_with_id]
+    if id2.nil?
+      continue = "No valid merge ID"
+    elsif id2 == id1
+      continue = "Both of the Article IDs are the same."
+    elsif !Article.find_by_id(id2)
+      continue = "Invalid merge ID"
+    end
+    if continue == 'true'
+    @Article = Article.find(id1)
+    @Article.merge_with(id2)
+    flash[:noticed] = _("Articles successfully merged")
+    else
+      flash[:error] = _("Merge Error: #{continue}")
+    end
 
-    flash[:notice] = _("The articles were successfully merged.")
-    redirect_to :action => 'index'
+    # flash[:notice] = _("The articles were successfully merged.")
+    # redirect_to :action => 'index'
   end
 
   def edit
-    @article = Article.find(params[:id])
-    unless @article.access_by? current_user
-      redirect_to :action => 'index'
-      flash[:error] = _("Error, you are not allowed to perform this action")
-      return
+    unless params[:id] == nil
+      @article = Article.find(params[:id])
+      unless @article.access_by? current_user
+        redirect_to :action => 'index'
+        flash[:error] = _("Error, you are not allowed to perform this action")
+        return
+      end
     end
     new_or_edit('edit')
   end
@@ -161,7 +173,6 @@ class Admin::ContentController < Admin::BaseController
 
     @post_types = PostType.find(:all)
     if request.post?
-      flash[:notice] = _("Great Scott.")
       if params[:article][:draft]
         get_fresh_or_existing_draft_for_article
       else
@@ -178,9 +189,13 @@ class Admin::ContentController < Admin::BaseController
     @article.published_at = DateTime.strptime(params[:article][:published_at], "%B %e, %Y %I:%M %p GMT%z").utc rescue Time.parse(params[:article][:published_at]).utc rescue nil
 
     if request.post?
-      set_article_author
-      save_attachments
-      @article.state = "draft" if @article.draft
+      if params[:merge_with_id] != ""
+        merge
+      else
+        set_article_author
+        save_attachments
+        @article.state = "draft" if @article.draft
+      end
 
       if @article.save
         destroy_the_draft unless @article.draft
