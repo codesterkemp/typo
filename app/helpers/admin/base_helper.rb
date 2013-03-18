@@ -209,7 +209,7 @@ module Admin::BaseHelper
   end
 
   def merge_form
-    unless current_user == "admin"
+    if current_user.admin?
       render :partial => "merge"
     end
   end
