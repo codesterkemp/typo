@@ -208,6 +208,12 @@ module Admin::BaseHelper
     end
   end
 
+  def merge_form
+    unless current_user == "admin"
+      render :partial => "merge"
+    end
+  end
+
   def render_macros(macros)
     result = link_to_function _("Show help on Typo macros") + " (+/-)",update_page { |page| page.visual_effect(:toggle_blind, "macros", :duration => 0.2) }
     result << "<table id='macros' style='display: none;'>"
